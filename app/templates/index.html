@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstroApp - Native Form</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f3f4f6; padding: 40px; margin: 0; }
+        .wrapper { max-width: 600px; margin: 0 auto; }
+        .form-card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h2, h3 { margin-top: 0; color: #1f2937; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: #4b5563; font-size: 14px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #4f46e5; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #4338ca; }
+        .result-card { background: #1f2937; color: #34d399; padding: 20px; border-radius: 8px; font-family: monospace; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="form-card">
+        <h2>Enter Birth Details</h2>
+        <form action="/chart" method="POST">
+            <div class="form-group">
+                <label>Date of Birth</label>
+                <input type="date" name="dob" required value="2000-09-09">
+            </div>
+            <div class="form-group">
+                <label>Time of Birth</label>
+                <input type="time" name="time" required value="06:17">
+            </div>
+            <div class="form-group">
+                <label>Latitude</label>
+                <input type="number" step="any" name="lat" required value="11.7002">
+            </div>
+            <div class="form-group">
+                <label>Longitude</label>
+                <input type="number" step="any" name="lon" required value="75.5343">
+            </div>
+            <div class="form-group">
+                <label>Timezone</label>
+                <select name="timezone">
+                    <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+                    <option value="America/New_York">America/New_York (EST/EDT)</option>
+                    <option value="Europe/London">Europe/London (GMT)</option>
+                </select>
+            </div>
+            <button type="submit">Calculate Charts</button>
+        </form>
+    </div>
+
+    {% if result %}
+    <div class="result-card">
+        <h3>Calculated Varga Results:</h3>
+{{ result | tojson(indent=2) }}
+    </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

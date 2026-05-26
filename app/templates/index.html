@@ -3,48 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AstroApp - Native Form</title>
+    <title>AstroApp - Elegant Birth Details</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f3f4f6; padding: 40px; margin: 0; }
-        .wrapper { max-width: 600px; margin: 0 auto; }
-        .form-card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        h2, h3 { margin-top: 0; color: #1f2937; }
-        .form-group { margin-bottom: 15px; position: relative; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; color: #4b5563; font-size: 14px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #4f46e5; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        button:hover { background: #4338ca; }
-        .result-card { background: #1f2937; color: #34d399; padding: 20px; border-radius: 8px; font-family: monospace; white-space: pre-wrap; }
+        :root {
+            --primary-gold: #d4af37;
+            --dark-gold: #aa841c;
+            --light-gold: #f4ebd0;
+            --bg-gradient: linear-gradient(135deg, #fdfbf7 0%, #f5f0e1 100%);
+            --text-dark: #2c2c2c;
+            --text-light: #6b6b6b;
+            --white: #ffffff;
+            --card-shadow: 0 10px 30px rgba(212, 175, 55, 0.12);
+        }
+
+        body { 
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif; 
+            background: var(--bg-gradient); 
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px; 
+            margin: 0; 
+            box-sizing: border-box;
+            color: var(--text-dark);
+        }
+
+        .wrapper { 
+            width: 100%;
+            max-width: 540px; 
+            margin: 0 auto; 
+        }
+
+        .form-card { 
+            background: var(--white); 
+            padding: 40px 35px; 
+            border-radius: 16px; 
+            border: 1px solid rgba(214, 175, 55, 0.2);
+            box-shadow: var(--card-shadow); 
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative top accent border line */
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-gold), var(--dark-gold));
+        }
+
+        h2 { 
+            margin-top: 0; 
+            margin-bottom: 25px;
+            color: var(--text-dark); 
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+        /* Responsive flex row for date and time input boxes */
+        .form-row {
+            display: flex;
+            gap: 16px;
+        }
+
+        .form-group { 
+            margin-bottom: 22px; 
+            position: relative; 
+            flex: 1;
+        }
+
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: var(--text-dark); 
+            font-size: 13px; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input { 
+            width: 100%; 
+            padding: 12px 14px; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 15px;
+            color: var(--text-dark);
+            background-color: #fcfdfa;
+            transition: all 0.2s ease-in-out;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-gold);
+            background-color: var(--white);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+        }
+
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            background: linear-gradient(135deg, var(--primary-gold) 0%, var(--dark-gold) 100%); 
+            color: var(--white); 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            box-shadow: 0 4px 12px rgba(170, 132, 28, 0.2);
+            transition: all 0.2s ease;
+            margin-top: 5px;
+        }
+
+        button:hover { 
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(170, 132, 28, 0.3);
+        }
         
-        /* Dropdown Autocomplete Layout Styling */
+        button:active {
+            transform: translateY(1px);
+        }
+
+        /* Modernized Autocomplete Suggestion Dropdown List */
         .autocomplete-suggestions {
             position: absolute;
             z-index: 1000;
-            background: white;
-            border: 1px solid #cbd5e1;
+            background: var(--white);
+            border: 1px solid rgba(214, 175, 55, 0.25);
             border-top: none;
-            border-radius: 0 0 4px 4px;
-            max-height: 200px;
+            border-radius: 0 0 8px 8px;
+            max-height: 220px;
             overflow-y: auto;
             width: 100%;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
             display: none;
+            box-sizing: border-box;
         }
+
         .suggestion-item {
-            padding: 10px 12px;
+            padding: 12px 14px;
             cursor: pointer;
             font-size: 14px;
-            color: #334155;
-            border-bottom: 1px solid #f1f5f9;
+            color: var(--text-dark);
+            border-bottom: 1px solid #fcfaf2;
+            transition: background 0.15s ease;
         }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
         .suggestion-item:hover {
-            background-color: #f1f5f9;
+            background-color: var(--light-gold);
+            color: var(--dark-gold);
         }
+
         .loading-text {
-            padding: 10px 12px;
-            color: #64748b;
+            padding: 12px 14px;
+            color: var(--text-light);
             font-size: 14px;
             font-style: italic;
+        }
+
+        /* Output View Styling Window */
+        .result-card { 
+            background: #1e1e1e; 
+            color: #f4ebd0; 
+            padding: 25px; 
+            border-radius: 12px; 
+            font-family: 'Courier New', monospace; 
+            white-space: pre-wrap; 
+            margin-top: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-left: 4px solid var(--primary-gold);
+        }
+
+        .result-card h3 {
+            margin-top: 0;
+            color: var(--white);
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 16px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        /* Responsive Configurations for Smaller Handheld Viewports */
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+            .form-card {
+                padding: 30px 20px;
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
         }
     </style>
 </head>
@@ -54,18 +215,21 @@
     <div class="form-card">
         <h2>Enter Birth Details</h2>
         <form action="/chart" method="POST">
-            <div class="form-group">
-                <label>Date of Birth</label>
-                <input type="date" name="dob" required value="2000-09-09">
-            </div>
-            <div class="form-group">
-                <label>Time of Birth</label>
-                <input type="time" name="time" required value="06:17">
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" name="dob" required value="2000-09-09">
+                </div>
+                <div class="form-group">
+                    <label>Time of Birth</label>
+                    <input type="time" name="time" required value="06:17">
+                </div>
             </div>
 
             <div class="form-group">
                 <label>Birth Place (City / Town)</label>
-                <input type="text" id="city-search" placeholder="Type city name... (e.g. Mumbai, New York)" autocomplete="off" required>
+                <input type="text" id="city-search" placeholder="Search birth location..." autocomplete="off" required>
                 <div id="suggestions-box" class="autocomplete-suggestions"></div>
             </div>
 
@@ -94,7 +258,6 @@
     
     let debounceTimer;
 
-    // Listen to keystroke typing input
     citySearch.addEventListener('input', function() {
         clearTimeout(debounceTimer);
         const query = this.value.trim();
@@ -104,12 +267,10 @@
             return;
         }
 
-        // Wait 400ms after user stops typing to minimize unnecessary server load (Debounce)
         debounceTimer = setTimeout(() => {
             suggestionsBox.innerHTML = '<div class="loading-text">Searching locations...</div>';
             suggestionsBox.style.display = 'block';
 
-            // Query OpenStreetMap Free Nominatim API
             fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`)
                 .then(res => res.json())
                 .then(data => {
@@ -124,14 +285,12 @@
                         div.className = 'suggestion-item';
                         div.textContent = item.display_name;
                         
-                        // Click Event Listener inside choice
                         div.addEventListener('click', () => {
                             citySearch.value = item.display_name;
                             latInput.value = item.lat;
                             lonInput.value = item.lon;
                             suggestionsBox.style.display = 'none';
 
-                            // Automatically look up the timezone via coordinates using your background route
                             fetchTimezone(item.lat, item.lon);
                         });
                         suggestionsBox.appendChild(div);
@@ -144,10 +303,7 @@
         }, 400);
     });
 
-    // Fetches the Timezone value utilizing the third-party backend helper tool built earlier
     function fetchTimezone(lat, lon) {
-        // Calls the /get-city-details route or a direct programmatic API mapping 
-        // Here we query a public timezone wrapper API to handle everything inside frontend purely
         fetch(`https://timeapi.io/api/timezone/coordinate?latitude=${lat}&longitude=${lon}`)
             .then(res => res.json())
             .then(data => {
@@ -158,11 +314,10 @@
             })
             .catch(err => {
                 console.warn("Timezone fallback applied: Defaulting to Asia/Kolkata", err);
-                tzInput.value = "Asia/Kolkata"; // Fallback assignment
+                tzInput.value = "Asia/Kolkata";
             });
     }
 
-    // Hide dropdown list if user clicks outside of input parameters
     document.addEventListener('click', function(e) {
         if (e.target !== citySearch && e.target !== suggestionsBox) {
             suggestionsBox.style.display = 'none';

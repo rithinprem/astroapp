@@ -29,32 +29,10 @@
 
         .container { max-width: 1000px; margin: 0 auto; }
         
-        .nav-actions {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-
-        .btn {
-            display: inline-block; 
-            padding: 10px 20px; 
-            border-radius: 6px; 
-            font-weight: 600; 
-            text-decoration: none;
-            transition: background 0.2s ease;
-        }
-
         .btn-back {
-            background: #4f46e5;
-            color: white; 
+            display: inline-block; padding: 10px 20px; background: #4f46e5;
+            color: white; text-decoration: none; border-radius: 6px; font-weight: 600; margin-bottom: 25px;
         }
-        .btn-back:hover { background: #4338ca; }
-
-        .btn-varga {
-            background: #f59e0b;
-            color: #ffffff;
-        }
-        .btn-varga:hover { background: #d97706; }
 
         /* --- THE CHART ARCHITECTURE --- */
         .chart-wrapper { 
@@ -113,7 +91,7 @@
             font-weight: bold;
         }
         .retro-symbol { color: inherit; }
-        .combust-symbol { color: #dc2626; }
+        .combust-symbol { color: #dc2626; /* Always red for visibility */ }
 
         @media (min-width: 550px) {
             .rashi-num { font-size: 19px; }
@@ -145,10 +123,7 @@
 <body>
 
 <div class="container">
-    <div class="nav-actions">
-        <a href="/" class="btn btn-back">← Calculate New Chart</a>
-        <a href="/d9" class="btn btn-varga">View Navamsha (D9) Chart →</a>
-    </div>
+    <a href="/" class="btn-back">← Calculate New Chart</a>
 
     {% set house_planets = {1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[], 11:[], 12:[]} %}
     {% for p_name, p_info in result.items() %}

@@ -9,12 +9,43 @@
         .wrapper { max-width: 600px; margin: 0 auto; }
         .form-card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
         h2, h3 { margin-top: 0; color: #1f2937; }
-        .form-group { margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; position: relative; }
         label { display: block; margin-bottom: 5px; font-weight: 600; color: #4b5563; font-size: 14px; }
         input, select { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background: #4f46e5; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
         button:hover { background: #4338ca; }
         .result-card { background: #1f2937; color: #34d399; padding: 20px; border-radius: 8px; font-family: monospace; white-space: pre-wrap; }
+        
+        /* Dropdown Autocomplete Layout Styling */
+        .autocomplete-suggestions {
+            position: absolute;
+            z-index: 1000;
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .suggestion-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .suggestion-item:hover {
+            background-color: #f1f5f9;
+        }
+        .loading-text {
+            padding: 10px 12px;
+            color: #64748b;
+            font-size: 14px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -31,22 +62,17 @@
                 <label>Time of Birth</label>
                 <input type="time" name="time" required value="06:17">
             </div>
+
             <div class="form-group">
-                <label>Latitude</label>
-                <input type="number" step="any" name="lat" required value="11.7002">
+                <label>Birth Place (City / Town)</label>
+                <input type="text" id="city-search" placeholder="Type city name... (e.g. Mumbai, New York)" autocomplete="off" required>
+                <div id="suggestions-box" class="autocomplete-suggestions"></div>
             </div>
-            <div class="form-group">
-                <label>Longitude</label>
-                <input type="number" step="any" name="lon" required value="75.5343">
-            </div>
-            <div class="form-group">
-                <label>Timezone</label>
-                <select name="timezone">
-                    <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
-                    <option value="America/New_York">America/New_York (EST/EDT)</option>
-                    <option value="Europe/London">Europe/London (GMT)</option>
-                </select>
-            </div>
+
+            <input type="hidden" id="lat" name="lat" value="11.7002">
+            <input type="hidden" id="lon" name="lon" value="75.5343">
+            <input type="hidden" id="timezone" name="timezone" value="Asia/Kolkata">
+
             <button type="submit">Calculate Charts</button>
         </form>
     </div>
@@ -59,5 +85,89 @@
     {% endif %}
 </div>
 
+<script>
+    const citySearch = document.getElementById('city-search');
+    const suggestionsBox = document.getElementById('suggestions-box');
+    const latInput = document.getElementById('lat');
+    const lonInput = document.getElementById('lon');
+    const tzInput = document.getElementById('timezone');
+    
+    let debounceTimer;
+
+    // Listen to keystroke typing input
+    citySearch.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const query = this.value.trim();
+        
+        if (query.length < 3) {
+            suggestionsBox.style.display = 'none';
+            return;
+        }
+
+        // Wait 400ms after user stops typing to minimize unnecessary server load (Debounce)
+        debounceTimer = setTimeout(() => {
+            suggestionsBox.innerHTML = '<div class="loading-text">Searching locations...</div>';
+            suggestionsBox.style.display = 'block';
+
+            // Query OpenStreetMap Free Nominatim API
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`)
+                .then(res => res.json())
+                .then(data => {
+                    suggestionsBox.innerHTML = '';
+                    if (data.length === 0) {
+                        suggestionsBox.innerHTML = '<div class="loading-text">No locations found</div>';
+                        return;
+                    }
+
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        div.textContent = item.display_name;
+                        
+                        // Click Event Listener inside choice
+                        div.addEventListener('click', () => {
+                            citySearch.value = item.display_name;
+                            latInput.value = item.lat;
+                            lonInput.value = item.lon;
+                            suggestionsBox.style.display = 'none';
+
+                            // Automatically look up the timezone via coordinates using your background route
+                            fetchTimezone(item.lat, item.lon);
+                        });
+                        suggestionsBox.appendChild(div);
+                    });
+                })
+                .catch(err => {
+                    console.error("Geocoding failed", err);
+                    suggestionsBox.style.display = 'none';
+                });
+        }, 400);
+    });
+
+    // Fetches the Timezone value utilizing the third-party backend helper tool built earlier
+    function fetchTimezone(lat, lon) {
+        // Calls the /get-city-details route or a direct programmatic API mapping 
+        // Here we query a public timezone wrapper API to handle everything inside frontend purely
+        fetch(`https://timeapi.io/api/timezone/coordinate?latitude=${lat}&longitude=${lon}`)
+            .then(res => res.json())
+            .then(data => {
+                if(data && data.timeZone) {
+                    tzInput.value = data.timeZone;
+                    console.log(`Autoassigned values: Lat ${lat}, Lon ${lon}, TZ ${data.timeZone}`);
+                }
+            })
+            .catch(err => {
+                console.warn("Timezone fallback applied: Defaulting to Asia/Kolkata", err);
+                tzInput.value = "Asia/Kolkata"; // Fallback assignment
+            });
+    }
+
+    // Hide dropdown list if user clicks outside of input parameters
+    document.addEventListener('click', function(e) {
+        if (e.target !== citySearch && e.target !== suggestionsBox) {
+            suggestionsBox.style.display = 'none';
+        }
+    });
+</script>
 </body>
 </html>

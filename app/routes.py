@@ -53,3 +53,50 @@ def d9_chart():
         return render_template('d9.html', result=d9_data)
     except Exception as e:
         return f"Calculation failed: {str(e)}", 500
+
+# 4. GET ROUTE for D30: Safely renders the D30 chart page
+@api_bp.route('/d30', methods=['GET'])
+def d30_chart():
+    birth_data = session.get('birth_data')
+    
+    # Safety Check: Redirect to form index if session doesn't exist
+    if not birth_data:
+        return redirect(url_for('api.start_chart'))
+        
+    try:
+        chart = chart_class(birth_data)
+        d30_data = chart.d30_chart_engine()
+        return render_template('d30.html', result=d30_data)
+    except Exception as e:
+        return f"Calculation failed: {str(e)}", 500
+    
+
+@api_bp.route('/d7', methods=['GET'])
+def d7_chart():
+    birth_data = session.get('birth_data')
+    
+    # Safety Check: Redirect to form index if session doesn't exist
+    if not birth_data:
+        return redirect(url_for('api.start_chart'))
+        
+    try:
+        chart = chart_class(birth_data)
+        d7_data = chart.d7_chart_engine()
+        return render_template('d7.html', result=d7_data)
+    except Exception as e:
+        return f"Calculation failed: {str(e)}", 500
+
+@api_bp.route('/d4', methods=['GET'])
+def d4_chart():
+    birth_data = session.get('birth_data')
+    
+    # Safety Check: Redirect to form index if session doesn't exist
+    if not birth_data:
+        return redirect(url_for('api.start_chart'))
+        
+    try:
+        chart = chart_class(birth_data)
+        d4_data = chart.d4_chart_engine()
+        return render_template('d4.html', result=d4_data)
+    except Exception as e:
+        return f"Calculation failed: {str(e)}", 500

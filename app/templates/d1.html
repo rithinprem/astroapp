@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,12 +11,16 @@
             --card-bg: #ffffff;
             --text-main: #0f172a;
             --chart-line: #f59e0b;
-            
+
             /* Planet Colors */
-            --color-Jupiter: #f59e0b; --color-Saturn: #1e3a8a;
-            --color-Mars: #dc2626;    --color-Sun: #ef4444;
-            --color-Mercury: #22c55e; --color-Venus: #d946ef;
-            --color-Moon: #6366f1;    --color-Ketu: #f97316;
+            --color-Jupiter: #f59e0b;
+            --color-Saturn: #1e3a8a;
+            --color-Mars: #dc2626;
+            --color-Sun: #ef4444;
+            --color-Mercury: #22c55e;
+            --color-Venus: #d946ef;
+            --color-Moon: #6366f1;
+            --color-Ketu: #f97316;
             --color-Rahu: #ec4899;
         }
 
@@ -27,38 +32,123 @@
             padding: 30px 15px;
         }
 
-        .container { max-width: 1000px; margin: 0 auto; }
-        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* --- HORIZONTAL SCROLLABLE NAVIGATION ARCHITECTURE --- */
         .nav-actions {
             display: flex;
+            align-items: center;
+            justify-content: flex-start;
             gap: 12px;
-            margin-bottom: 25px;
+            margin-bottom: 32px;
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 16px;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            /* Subtle Amber alignment with project theme */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow:
+                0 4px 6px -1px rgba(15, 23, 42, 0.02),
+                0 10px 15px -3px rgba(15, 23, 42, 0.04);
+
+            /* Enable Smooth Horizontal Scrolling along X-axis */
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            white-space: nowrap;
         }
 
+        /* Hide Scrollbars completely across all engines while retaining functionality */
+        .nav-actions::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-actions {
+            -ms-overflow-style: none;
+            /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        /* Premium Theme-Aligned Button Core Properties */
         .btn {
-            display: inline-block; 
-            padding: 10px 20px; 
-            border-radius: 6px; 
-            font-weight: 600; 
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
             text-decoration: none;
-            transition: background 0.2s ease;
+            border-radius: 10px;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            flex-shrink: 0;
+            /* Prevents text squeezing/compression when scrolling */
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform, box-shadow;
         }
 
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Primary Calculation/Reset Action Styling */
         .btn-back {
-            background: #4f46e5;
-            color: white; 
+            color: #4f46e5;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
         }
-        .btn-back:hover { background: #4338ca; }
 
-        .btn-varga {
-            background: #f59e0b;
-            color: #ffffff;
+        .btn-back:hover {
+            color: #4338ca;
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
         }
-        .btn-varga:hover { background: #d97706; }
+
+        /* Astrological Theme-Aligned Divisional Chart Action Buttons */
+        .btn-varga {
+            color: #ffffff;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            /* Deep Astro Amber/Gold Theme Gradient */
+            border: 1px solid #b45309;
+            box-shadow: 0 1px 2px rgba(217, 119, 6, 0.15);
+        }
+
+        .btn-varga:hover {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
+        }
+
+        /* SVG Dynamic Layout Offset Actions */
+        .btn svg {
+            transition: transform 0.2s ease;
+        }
+
+        .btn-back:hover svg {
+            transform: translateX(-2px);
+        }
+
+        .btn-varga:hover svg {
+            transform: translateX(2px);
+        }
 
         /* --- THE CHART ARCHITECTURE --- */
-        .chart-wrapper { 
-            display: flex; justify-content: center; margin-bottom: 40px; 
+        .chart-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
         }
 
         .kundli-box {
@@ -67,23 +157,49 @@
             max-width: 550px;
             aspect-ratio: 1 / 1;
             background: #ffffff;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
             border-radius: 4px;
             border: 1px solid var(--chart-line);
         }
 
-        .grid-svg {
+        .kundli-box::before {
+            content: "D1";
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.4rem, 2.4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            color: rgba(15, 23, 42, 0.12);
+            transform: rotate(0deg);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .grid-svg,
+        .house-square {
+            position: absolute;
+            z-index: 1;
+        }
+
+        .grid-svg {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
         }
 
         .house-square {
             position: absolute;
-            width: 24%; height: 24%;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
+            width: 24%;
+            height: 24%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
         }
 
@@ -96,7 +212,9 @@
         }
 
         .planets {
-            display: flex; flex-direction: column; gap: 1px;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
         }
 
         .p-text {
@@ -105,114 +223,217 @@
             line-height: 1.1;
             white-space: nowrap;
         }
-        
+
         /* Indicators for Retrograde and Combustion */
         .indicator {
             font-size: 0.85em;
             vertical-align: super;
             font-weight: bold;
         }
-        .retro-symbol { color: inherit; }
-        .combust-symbol { color: #dc2626; }
+
+        .retro-symbol {
+            color: inherit;
+        }
+
+        .combust-symbol {
+            color: #dc2626;
+        }
 
         @media (min-width: 550px) {
-            .rashi-num { font-size: 19px; }
-            .p-text { font-size: 15px; }
+            .rashi-num {
+                font-size: 19px;
+            }
+
+            .p-text {
+                font-size: 15px;
+            }
         }
 
-        .Jupiter { color: var(--color-Jupiter); } .Saturn { color: var(--color-Saturn); }
-        .Mars { color: var(--color-Mars); }       .Sun { color: var(--color-Sun); }
-        .Mercury { color: var(--color-Mercury); } .Venus { color: var(--color-Venus); }
-        .Moon { color: var(--color-Moon); }       .Ketu { color: var(--color-Ketu); }
-        .Rahu { color: var(--color-Rahu); }
+        .Jupiter {
+            color: var(--color-Jupiter);
+        }
+
+        .Saturn {
+            color: var(--color-Saturn);
+        }
+
+        .Mars {
+            color: var(--color-Mars);
+        }
+
+        .Sun {
+            color: var(--color-Sun);
+        }
+
+        .Mercury {
+            color: var(--color-Mercury);
+        }
+
+        .Venus {
+            color: var(--color-Venus);
+        }
+
+        .Moon {
+            color: var(--color-Moon);
+        }
+
+        .Ketu {
+            color: var(--color-Ketu);
+        }
+
+        .Rahu {
+            color: var(--color-Rahu);
+        }
 
         /* --- THE DYNAMIC TABLE --- */
-        .table-card { 
-            background: var(--card-bg); border: 1px solid#f59e0b; 
-            border-radius: 8px; overflow-x: auto; margin-top: 20px; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        .table-card {
+            background: var(--card-bg);
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
-        table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
-        th { 
-            background-color: #f1f5f9; color: #475569; font-weight: 600; 
-            padding: 14px 16px; font-size: 0.9rem; border-bottom: 2px solid #cbd5e1; 
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            padding: 14px 16px;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #cbd5e1;
             text-transform: capitalize;
         }
-        td { padding: 12px 16px; border-bottom: 1px solid #f59e0b; font-size: 0.95rem; }
-        tbody tr:hover { background-color: #f8fafc; }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #d5d1ca;
+            font-size: 0.95rem;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <div class="nav-actions">
-        <a href="/" class="btn btn-back">← Calculate New Chart</a>
-        <a href="/d9" class="btn btn-varga">View Navamsha (D9) Chart →</a>
-    </div>
+    <div class="container">
+        <div class="nav-actions">
+            <a href="/" class="btn btn-back">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Calculate New Chart
+            </a>
+            <a href="/d9" class="btn btn-varga">
+                Navamsha (D9) Chart
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </a>
+            <a href="/d30" class="btn btn-varga">
+                Trishamsha (D30) Chart
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </a>
+            <a href="/d7" class="btn btn-varga">
+                Saptamsha (D7) Chart
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </a>
+            <a href="/d4" class="btn btn-varga">
+                Chaturthamsa (D4) Chart
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </a>
+        </div>
 
-    {% set house_planets = {1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[], 11:[], 12:[]} %}
-    {% for p_name, p_info in result.items() %}
+        {% set house_planets = {1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[], 8:[], 9:[], 10:[], 11:[], 12:[]} %}
+        {% for p_name, p_info in result.items() %}
         {% set is_retro = p_info.get('Retrograde', False) or p_info.get('Retro', False) %}
         {% set is_combust = p_info.get('Combustion', False) or p_info.get('Combust', False) %}
-        
+
         {% set _ = house_planets[p_info.get('House', 1)].append({
-            'name': p_name, 
-            'degree': p_info.get('Degree', ''), 
-            'retro': is_retro,
-            'combust': is_combust
+        'name': p_name,
+        'degree': p_info.get('Degree', ''),
+        'retro': is_retro,
+        'combust': is_combust
         }) %}
-    {% endfor %}
+        {% endfor %}
 
-    {% set ns = namespace(lagna=1) %}
-    {% set rashi_map = {"Aries":1,"Taurus":2,"Gemini":3,"Cancer":4,"Leo":5,"Virgo":6,"Libra":7,"Scorpio":8,"Sagittarius":9,"Capricorn":10,"Aquarius":11,"Pisces":12} %}
-    {% for p, d in result.items() %}
+        {% set ns = namespace(lagna=1) %}
+        {% set rashi_map =
+        {"Aries":1,"Taurus":2,"Gemini":3,"Cancer":4,"Leo":5,"Virgo":6,"Libra":7,"Scorpio":8,"Sagittarius":9,"Capricorn":10,"Aquarius":11,"Pisces":12}
+        %}
+
+        {% for p, d in result.items() %}
         {% if loop.first %}
-            {% set p_sign = rashi_map.get(d.get('Sign', 'Aries'), 1) %}
-            {% set diff = p_sign - d.get('House', 1) + 1 %}
-            {% set ns.lagna = diff if diff > 0 else diff + 12 %}
+        {% set p_sign = rashi_map.get(d.get('Sign', 'Aries'), 1) %}
+        {% set diff = p_sign - d.get('House', 1) + 1 %}
+        {% set ns.lagna = diff if diff > 0 else diff + 12 %}
         {% endif %}
-    {% endfor %}
+        {% endfor %}
 
-    {% set boxes = {
-        1:  {'left': 38,   'top': 13}, 2:  {'left': 13,   'top': 0.5},
-        3:  {'left': 0.5,  'top': 13}, 4:  {'left': 13,   'top': 38},
-        5:  {'left': 0.5,  'top': 63}, 6:  {'left': 13,   'top': 75.5},
-        7:  {'left': 38,   'top': 63}, 8:  {'left': 63,   'top': 75.5},
-        9:  {'left': 75.5, 'top': 63}, 10: {'left': 63,   'top': 38},
-        11: {'left': 75.5, 'top': 13}, 12: {'left': 63,   'top': 0.5}
-    } %}
+        {% set boxes = {
+        1: {'left': 38, 'top': 13}, 2: {'left': 13, 'top': 0.5},
+        3: {'left': 0.5, 'top': 13}, 4: {'left': 13, 'top': 38},
+        5: {'left': 0.5, 'top': 63}, 6: {'left': 13, 'top': 75.5},
+        7: {'left': 38, 'top': 63}, 8: {'left': 63, 'top': 75.5},
+        9: {'left': 75.5, 'top': 63}, 10: {'left': 63, 'top': 38},
+        11: {'left': 75.5, 'top': 13}, 12: {'left': 63, 'top': 0.5}
+        } %}
 
-    <div class="chart-wrapper">
-        <div class="kundli-box">
-            <svg class="grid-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <line x1="0" y1="0" x2="100" y2="100" stroke="var(--chart-line)" stroke-width="0.3"/>
-                <line x1="100" y1="0" x2="0" y2="100" stroke="var(--chart-line)" stroke-width="0.3"/>
-                <polygon points="50,0 100,50 50,100 0,50" fill="none" stroke="var(--chart-line)" stroke-width="0.3"/>
-            </svg>
+        <div class="chart-wrapper">
+            <div class="kundli-box">
+                <svg class="grid-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <line x1="0" y1="0" x2="100" y2="100" stroke="var(--chart-line)" stroke-width="0.3" />
+                    <line x1="100" y1="0" x2="0" y2="100" stroke="var(--chart-line)" stroke-width="0.3" />
+                    <polygon points="50,0 100,50 50,100 0,50" fill="none" stroke="var(--chart-line)"
+                        stroke-width="0.3" />
+                </svg>
 
-            {% for h in range(1, 13) %}
+                {% for h in range(1, 13) %}
                 {% set rashi_num = (ns.lagna + h - 2) % 12 + 1 %}
                 <div class="house-square" style="left: {{ boxes[h].left }}%; top: {{ boxes[h].top }}%;">
-                    
                     <div class="rashi-num">{{ rashi_num }}</div>
-                    
                     <div class="planets">
                         {% for p in house_planets[h] %}
-                            <span class="p-text {{ p.name }}">
-                                {{ p.name[:2] }}
-                                {% if p.retro %}<span class="indicator retro-symbol">®</span>{% endif %}
-                                {% if p.combust %}<span class="indicator combust-symbol">c</span>{% endif %}
-                                {{ p.degree }}
-                            </span>
+                        <span class="p-text {{ p.name }}">
+                            {{ p.name[:2] }}
+                            {% if p.retro %}<span class="indicator retro-symbol">®</span>{% endif %}
+                            {% if p.combust %}<span class="indicator combust-symbol">c</span>{% endif %}
+                            {{ p.degree }}
+                        </span>
                         {% endfor %}
                     </div>
-
                 </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
-    </div>
 
-    {% if result %}
+        {% if result %}
         {% set sample_planet_data = result.values() | first %}
         <div class="table-card">
             <table>
@@ -220,7 +441,7 @@
                     <tr>
                         <th>Planet</th>
                         {% for key in sample_planet_data.keys() %}
-                            <th>{{ key }}</th>
+                        <th>{{ key }}</th>
                         {% endfor %}
                     </tr>
                 </thead>
@@ -229,20 +450,21 @@
                     <tr>
                         <td style="font-weight: bold;" class="{{ planet }}">{{ planet }}</td>
                         {% for key, value in details.items() %}
-                            <td>
-                                {% if value is sameas true %}Yes
-                                {% elif value is sameas false %}No
-                                {% else %}{{ value }}
-                                {% endif %}
-                            </td>
+                        <td>
+                            {% if value is sameas true %}Yes
+                            {% elif value is sameas false %}No
+                            {% else %}{{ value }}
+                            {% endif %}
+                        </td>
                         {% endfor %}
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-    {% endif %}
-</div>
+        {% endif %}
+    </div>
 
 </body>
+
 </html>

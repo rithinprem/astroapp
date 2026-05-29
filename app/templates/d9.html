@@ -39,6 +39,40 @@
             display: flex; justify-content: center; margin-bottom: 40px; 
         }
 
+        .chart-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .kundli-title {
+            font-size: clamp(1.25rem, 2.2vw, 2rem);
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: 0.02em;
+            margin: 0;
+        }
+
+        .kundli-title::after {
+            content: "";
+            display: block;
+            width: 64px;
+            height: 4px;
+            background: var(--chart-line);
+            border-radius: 2px;
+            margin: 8px auto 0;
+        }
+
+        .kundli-subtitle {
+            font-size: 0.95rem;
+            color: #6b7280;
+            margin: 0;
+            font-weight: 600;
+        }
+
         .kundli-box {
             position: relative;
             width: 100%;
@@ -177,6 +211,11 @@
         9:  {'left': 75.5, 'top': 63}, 10: {'left': 63,   'top': 38},
         11: {'left': 75.5, 'top': 13}, 12: {'left': 63,   'top': 0.5}
     } %}
+
+    <div class="chart-header">
+        <h1 class="kundli-title">Navamsha (D9) — Kundli</h1>
+        <p class="kundli-subtitle">Astrological divisional chart</p>
+    </div>
 
     <div class="chart-wrapper">
         <div class="kundli-box">

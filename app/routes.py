@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, render_template, session, redirect, url_for
 from app.calculators.engines import chart_class
+from db import client  # Import the MongoDB client from db.py
 
 api_bp = Blueprint('api', __name__)
 
@@ -18,6 +19,16 @@ def handle_form_submission():
         "lon": float(request.form.get('lon', 0)),
         "timezone": request.form.get('timezone', 'Asia/Kolkata')
     }
+    db = client['astroapp']
+    users = db['astroapp_people']
+    id = birth_data['dob']+birth_data['time']
+    birth_data['id'] = id
+    users.create_index([("id", 1)], unique=True)
+    try:
+        users.insert_one(birth_data)
+    except:
+        pass  # Ignore duplicate key errors for simplicity
+    
     session['birth_data'] = birth_data  # Store the birth data safely in user's session
     
     # Redirect to the clean GET route of this same blueprint
@@ -107,3 +118,18 @@ def d4_chart():
         return render_template('d4.html', result=d4_data)
     except Exception as e:
         return f"Calculation failed: {str(e)}", 500
+
+
+@api_bp.route('/get_saved_people', methods=['GET'])
+def get_saved_people():
+    """Return a hard-coded sample JSON list of saved people.
+
+    This endpoint intentionally returns the full sample list so the frontend
+    can fetch all entries and perform client-side autocomplete/filtering.
+    Persistent storage logic will be added later by the user.
+    """
+    sample = [
+        {"dob": "2000-09-09", "time": "06:17", "lat": 11.7002, "lon": 75.5343, "timezone": "Asia/Kolkata", "id": "2000-09-0906:17", "full_name": "rithin"},
+        {"dob": "1989-06-04", "time": "9:20", "lat": 11.7002, "lon": 75.5343, "timezone": "Asia/Kolkata", "id": "1989-06-049:20", "full_name": "Myeonji"}
+    ]
+    return jsonify(sample)

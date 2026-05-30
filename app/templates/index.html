@@ -72,6 +72,42 @@
             gap: 16px;
         }
 
+        /* Top grid panels for saved people and create form */
+        .top-grid {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .panel {
+            flex: 1;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 10px;
+            background: linear-gradient(180deg, #ffffff 0%, #fbfaf7 100%);
+            padding: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+        }
+
+        .create-panel { max-width: 380px; }
+
+        .panel.saved-panel { max-width: 260px; }
+
+        .panel-title {
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .panel-body { display: block; position: relative; }
+
+        .panel-hint { font-size: 12px; color: var(--text-light); margin-top: 8px; }
+
+        /* Panel search input */
+        .search-input { padding: 10px 12px; border-radius: 8px; border: 1px solid #e6e6e6; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); }
+
+        .form-group.small { margin-bottom: 10px; }
+
         .form-group { 
             margin-bottom: 22px; 
             position: relative; 
@@ -147,23 +183,16 @@
             box-sizing: border-box;
         }
 
-        .suggestion-item {
-            padding: 12px 14px;
-            cursor: pointer;
-            font-size: 14px;
-            color: var(--text-dark);
-            border-bottom: 1px solid #fcfaf2;
-            transition: background 0.15s ease;
-        }
+        /* Enhanced suggestion item styling */
+        .suggestion-item { display: flex; flex-direction: column; align-items: flex-start; padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #f6f4ee; border-radius: 6px; margin: 6px; transition: background 0.12s ease, transform 0.06s ease; }
+        .suggestion-item .meta { color: var(--text-light); font-size: 12px; margin-top: 6px; }
+        .suggestion-item strong { color: var(--dark-gold); font-size: 14px; }
 
-        .suggestion-item:last-child {
-            border-bottom: none;
-        }
+        .suggestion-item:last-child { margin-bottom: 4px; }
 
-        .suggestion-item:hover {
-            background-color: var(--light-gold);
-            color: var(--dark-gold);
-        }
+        .suggestion-item:hover { background: linear-gradient(90deg, rgba(212,175,55,0.06), rgba(170,132,28,0.03)); transform: translateY(-1px); }
+
+        .suggestion-main { display: flex; flex-direction: column; }
 
         .loading-text {
             padding: 12px 14px;
@@ -216,31 +245,52 @@
         <h2>Enter Birth Details</h2>
         <form action="/chart" method="POST">
 
-            <div class="form-group">
-                <label>Name</label>
-                <input type="text" name="fullname" id="fullname" placeholder="Full name" required>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Date of Birth</label>
-                    <input type="date" name="dob" required value="2000-09-09">
+            <div class="top-grid">
+                <div class="panel saved-panel">
+                    <div class="panel-title">Saved People</div>
+                    <div class="panel-body">
+                        <input type="text" id="saved-search" class="search-input" placeholder="Search saved people..." autocomplete="off">
+                        <div id="saved-suggestions" class="autocomplete-suggestions"></div>
+                        <div class="panel-hint">Select a saved person to populate the form.</div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Time of Birth</label>
-                    <input type="time" name="time" required value="06:17">
+
+                <div class="panel create-panel">
+                    <div class="panel-title">Create New Person</div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" name="fullname" id="fullname" placeholder="Full name">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Date of Birth</label>
+                                <input type="date" name="dob" id="dob" value="2000-09-09">
+                            </div>
+                            <div class="form-group">
+                                <label>Time of Birth</label>
+                                <input type="time" name="time" id="time" value="06:17">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Birth Place (City / Town)</label>
+                            <input type="text" id="city-search" class="search-input" placeholder="Search birth location..." autocomplete="off">
+                            <div id="suggestions-box" class="autocomplete-suggestions"></div>
+                        </div>
+
+                        <!-- Hidden geolocation fields (calculated from birthplace) -->
+                        <input type="hidden" id="lat" name="lat" value="">
+                        <input type="hidden" id="lon" name="lon" value="">
+                        <input type="hidden" id="timezone" name="timezone" value="">
+
+                        <div class="panel-hint">Fill these fields and click Calculate Charts.</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Birth Place (City / Town)</label>
-                <input type="text" id="city-search" placeholder="Search birth location..." autocomplete="off" required>
-                <div id="suggestions-box" class="autocomplete-suggestions"></div>
-            </div>
-
-            <input type="hidden" id="lat" name="lat" value="11.7002">
-            <input type="hidden" id="lon" name="lon" value="75.5343">
-            <input type="hidden" id="timezone" name="timezone" value="Asia/Kolkata">
+            <!-- Birth place search removed per request. Use latitude/longitude fields instead. -->
 
             <button type="submit">Calculate Charts</button>
         </form>
@@ -255,58 +305,140 @@
 </div>
 
 <script>
+    const savedSearch = document.getElementById('saved-search');
+    const savedSuggestions = document.getElementById('saved-suggestions');
     const citySearch = document.getElementById('city-search');
     const suggestionsBox = document.getElementById('suggestions-box');
     const latInput = document.getElementById('lat');
     const lonInput = document.getElementById('lon');
     const tzInput = document.getElementById('timezone');
     
-    let debounceTimer;
 
-    citySearch.addEventListener('input', function() {
-        clearTimeout(debounceTimer);
-        const query = this.value.trim();
-        
-        if (query.length < 3) {
-            suggestionsBox.style.display = 'none';
-            return;
-        }
+    // Saved people autocomplete
+    let savedDebounce;
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>"'`=\/]/g, function (s) {
+            return ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;',
+                '/': '&#x2F;',
+                '`': '&#96;',
+                '=': '&#61;'
+            })[s];
+        });
+    }
+    if (savedSearch) {
+        savedSearch.addEventListener('input', function() {
+            clearTimeout(savedDebounce);
+            const query = this.value.trim();
 
-        debounceTimer = setTimeout(() => {
-            suggestionsBox.innerHTML = '<div class="loading-text">Searching locations...</div>';
-            suggestionsBox.style.display = 'block';
+            if (query.length < 1) {
+                savedSuggestions.style.display = 'none';
+                return;
+            }
 
-            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`)
-                .then(res => res.json())
-                .then(data => {
-                    suggestionsBox.innerHTML = '';
-                    if (data.length === 0) {
-                        suggestionsBox.innerHTML = '<div class="loading-text">No locations found</div>';
-                        return;
-                    }
+            savedDebounce = setTimeout(() => {
+                savedSuggestions.innerHTML = '<div class="loading-text">Searching saved people...</div>';
+                savedSuggestions.style.display = 'block';
 
-                    data.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = 'suggestion-item';
-                        div.textContent = item.display_name;
-                        
-                        div.addEventListener('click', () => {
-                            citySearch.value = item.display_name;
-                            latInput.value = item.lat;
-                            lonInput.value = item.lon;
-                            suggestionsBox.style.display = 'none';
+                fetch(`/get_saved_people?q=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        savedSuggestions.innerHTML = '';
+                        if (!data || data.length === 0) {
+                            savedSuggestions.innerHTML = '<div class="loading-text">No saved people found</div>';
+                            return;
+                        }
 
-                            fetchTimezone(item.lat, item.lon);
+                        data.forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'suggestion-item';
+                            const name = escapeHtml(item.full_name || '');
+                            const meta = escapeHtml(`${item.dob || ''} ${item.time || ''}`);
+                            div.innerHTML = `<div class="suggestion-main"><strong>${name}</strong><div class="meta">${meta}</div></div>`;
+
+                            div.addEventListener('click', () => {
+                                // Populate form fields and submit
+                                const fullnameInput = document.getElementById('fullname');
+                                const dobInput = document.querySelector('input[name="dob"]');
+                                const timeInput = document.querySelector('input[name="time"]');
+                                if (fullnameInput) fullnameInput.value = item.full_name || '';
+                                if (dobInput) dobInput.value = item.dob || '';
+                                if (timeInput) timeInput.value = item.time || '';
+                                latInput.value = item.lat || '';
+                                lonInput.value = item.lon || '';
+                                tzInput.value = item.timezone || 'Asia/Kolkata';
+
+                                savedSuggestions.style.display = 'none';
+                                // Submit the form to /chart with POST
+                                const form = document.querySelector('form');
+                                if (form) form.submit();
+                            });
+
+                            savedSuggestions.appendChild(div);
                         });
-                        suggestionsBox.appendChild(div);
+                    })
+                    .catch(err => {
+                        console.error('Fetching saved people failed', err);
+                        savedSuggestions.style.display = 'none';
                     });
-                })
-                .catch(err => {
-                    console.error("Geocoding failed", err);
-                    suggestionsBox.style.display = 'none';
-                });
-        }, 400);
-    });
+            }, 200);
+        });
+    }
+
+    // Place autocomplete (Nominatim)
+    let debounceTimer;
+    if (citySearch) {
+        citySearch.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const query = this.value.trim();
+
+            if (query.length < 3) {
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+
+            debounceTimer = setTimeout(() => {
+                suggestionsBox.innerHTML = '<div class="loading-text">Searching locations...</div>';
+                suggestionsBox.style.display = 'block';
+
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`)
+                    .then(res => res.json())
+                    .then(data => {
+                        suggestionsBox.innerHTML = '';
+                        if (data.length === 0) {
+                            suggestionsBox.innerHTML = '<div class="loading-text">No locations found</div>';
+                            return;
+                        }
+
+                        data.forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'suggestion-item';
+                            div.textContent = item.display_name;
+
+                            div.addEventListener('click', () => {
+                                citySearch.value = item.display_name;
+                                latInput.value = item.lat;
+                                lonInput.value = item.lon;
+                                suggestionsBox.style.display = 'none';
+
+                                // fetch timezone for the coordinates
+                                fetchTimezone(item.lat, item.lon);
+                            });
+                            suggestionsBox.appendChild(div);
+                        });
+                    })
+                    .catch(err => {
+                        console.error("Geocoding failed", err);
+                        suggestionsBox.style.display = 'none';
+                    });
+            }, 400);
+        });
+    }
 
     function fetchTimezone(lat, lon) {
         fetch(`https://timeapi.io/api/timezone/coordinate?latitude=${lat}&longitude=${lon}`)
@@ -324,7 +456,10 @@
     }
 
     document.addEventListener('click', function(e) {
-        if (e.target !== citySearch && e.target !== suggestionsBox) {
+        if (savedSearch && e.target !== savedSearch && e.target !== savedSuggestions) {
+            savedSuggestions.style.display = 'none';
+        }
+        if (citySearch && e.target !== citySearch && e.target !== suggestionsBox) {
             suggestionsBox.style.display = 'none';
         }
     });

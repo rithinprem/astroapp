@@ -19,6 +19,9 @@ def handle_form_submission():
         "lon": float(request.form.get('lon', 0)),
         "timezone": request.form.get('timezone', 'Asia/Kolkata')
     }
+    
+    session['birth_data'] = birth_data  # Store the birth data safely in user's session
+
     db = client['astroapp']
     users = db['astroapp_people']
     id = birth_data['dob']+birth_data['time']
@@ -29,7 +32,6 @@ def handle_form_submission():
     except:
         pass  # Ignore duplicate key errors for simplicity
     
-    session['birth_data'] = birth_data  # Store the birth data safely in user's session
     
     # Redirect to the clean GET route of this same blueprint
     return redirect(url_for('api.show_d1_chart'))

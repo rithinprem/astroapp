@@ -314,8 +314,10 @@
     const tzInput = document.getElementById('timezone');
     
 
-    // Saved people autocomplete
+    // Saved people autocomplete (client-side filtering & sorting)
     let savedDebounce;
+    let savedPeopleCache = null;
+
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>"'`=\/]/g, function (s) {
@@ -331,6 +333,42 @@
             })[s];
         });
     }
+
+    // Highlight first matching substring in `text` with <strong>
+    function highlightMatch(text, q) {
+        if (!q) return escapeHtml(text);
+        const idx = text.toLowerCase().indexOf(q.toLowerCase());
+        if (idx === -1) return escapeHtml(text);
+        const before = escapeHtml(text.slice(0, idx));
+        const match = escapeHtml(text.slice(idx, idx + q.length));
+        const after = escapeHtml(text.slice(idx + q.length));
+        return `${before}<strong>${match}</strong>${after}`;
+    }
+
+    // Score function: higher score for prefix matches and name-word starts
+    function scoreItem(item, q) {
+        if (!q) return 0;
+        const ql = q.toLowerCase();
+        const name = (item.full_name || '').toLowerCase();
+        const id = (item.id || '').toLowerCase();
+
+        if (name.startsWith(ql)) return 100;
+        // word-start matches (e.g., last name)
+        const words = name.split(/\s+/);
+        for (const w of words) { if (w.startsWith(ql)) return 90; }
+        if (id.startsWith(ql)) return 85;
+        if (name.includes(ql)) return 70;
+        if (id.includes(ql)) return 60;
+        return 0;
+    }
+
+    async function ensureSavedPeopleLoaded() {
+        if (savedPeopleCache) return savedPeopleCache;
+        const res = await fetch('/get_saved_people');
+        savedPeopleCache = await res.json();
+        return savedPeopleCache;
+    }
+
     if (savedSearch) {
         savedSearch.addEventListener('input', function() {
             clearTimeout(savedDebounce);
@@ -341,52 +379,55 @@
                 return;
             }
 
-            savedDebounce = setTimeout(() => {
+            savedDebounce = setTimeout(async () => {
                 savedSuggestions.innerHTML = '<div class="loading-text">Searching saved people...</div>';
                 savedSuggestions.style.display = 'block';
 
-                fetch(`/get_saved_people?q=${encodeURIComponent(query)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        savedSuggestions.innerHTML = '';
-                        if (!data || data.length === 0) {
-                            savedSuggestions.innerHTML = '<div class="loading-text">No saved people found</div>';
-                            return;
-                        }
+                try {
+                    const all = await ensureSavedPeopleLoaded();
+                    // Score and filter
+                    const scored = all.map(item => ({ item, score: scoreItem(item, query) }))
+                        .filter(r => r.score > 0)
+                        .sort((a, b) => b.score - a.score || a.item.full_name.localeCompare(b.item.full_name))
+                        .slice(0, 8)
+                        .map(r => r.item);
 
-                        data.forEach(item => {
-                            const div = document.createElement('div');
-                            div.className = 'suggestion-item';
-                            const name = escapeHtml(item.full_name || '');
-                            const meta = escapeHtml(`${item.dob || ''} ${item.time || ''}`);
-                            div.innerHTML = `<div class="suggestion-main"><strong>${name}</strong><div class="meta">${meta}</div></div>`;
+                    savedSuggestions.innerHTML = '';
+                    if (!scored || scored.length === 0) {
+                        savedSuggestions.innerHTML = '<div class="loading-text">No saved people found</div>';
+                        return;
+                    }
 
-                            div.addEventListener('click', () => {
-                                // Populate form fields and submit
-                                const fullnameInput = document.getElementById('fullname');
-                                const dobInput = document.querySelector('input[name="dob"]');
-                                const timeInput = document.querySelector('input[name="time"]');
-                                if (fullnameInput) fullnameInput.value = item.full_name || '';
-                                if (dobInput) dobInput.value = item.dob || '';
-                                if (timeInput) timeInput.value = item.time || '';
-                                latInput.value = item.lat || '';
-                                lonInput.value = item.lon || '';
-                                tzInput.value = item.timezone || 'Asia/Kolkata';
+                    scored.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        const nameHtml = highlightMatch(item.full_name || '', query);
+                        const meta = escapeHtml(`${item.dob || ''} ${item.time || ''}`);
+                        div.innerHTML = `<div class="suggestion-main">${nameHtml}<div class="meta">${meta}</div></div>`;
 
-                                savedSuggestions.style.display = 'none';
-                                // Submit the form to /chart with POST
-                                const form = document.querySelector('form');
-                                if (form) form.submit();
-                            });
+                        div.addEventListener('click', () => {
+                            const fullnameInput = document.getElementById('fullname');
+                            const dobInput = document.querySelector('input[name="dob"]');
+                            const timeInput = document.querySelector('input[name="time"]');
+                            if (fullnameInput) fullnameInput.value = item.full_name || '';
+                            if (dobInput) dobInput.value = item.dob || '';
+                            if (timeInput) timeInput.value = item.time || '';
+                            latInput.value = item.lat || '';
+                            lonInput.value = item.lon || '';
+                            tzInput.value = item.timezone || 'Asia/Kolkata';
 
-                            savedSuggestions.appendChild(div);
+                            savedSuggestions.style.display = 'none';
+                            const form = document.querySelector('form');
+                            if (form) form.submit();
                         });
-                    })
-                    .catch(err => {
-                        console.error('Fetching saved people failed', err);
-                        savedSuggestions.style.display = 'none';
+
+                        savedSuggestions.appendChild(div);
                     });
-            }, 200);
+                } catch (err) {
+                    console.error('Fetching saved people failed', err);
+                    savedSuggestions.style.display = 'none';
+                }
+            }, 150);
         });
     }
 

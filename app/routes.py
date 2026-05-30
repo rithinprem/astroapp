@@ -11,6 +11,7 @@ def start_chart():
 @api_bp.route('/chart', methods=['POST'])
 def handle_form_submission():
     birth_data = {
+        "full_name": request.form.get('fullname'),
         "dob": request.form.get('dob'),
         "time": request.form.get('time'),
         "lat": float(request.form.get('lat', 0)),
@@ -32,6 +33,8 @@ def show_d1_chart():
         return redirect(url_for('api.start_chart'))
         
     try:
+        birth_data.pop('full_name', None)  # Remove full_name from birth_data before processing
+        print(birth_data)  # Debugging: Check the birth_data structure
         chart = chart_class(birth_data)
         d1_data = chart.d1_chart_engine()
         return render_template('d1.html', result=d1_data)
@@ -48,6 +51,7 @@ def d9_chart():
         return redirect(url_for('api.start_chart'))
         
     try:
+        birth_data.pop('full_name', None)  # Remove full_name from birth_data before processing
         chart = chart_class(birth_data)
         d9_data = chart.d9_chart_engine()
         return render_template('d9.html', result=d9_data)
@@ -64,6 +68,7 @@ def d30_chart():
         return redirect(url_for('api.start_chart'))
         
     try:
+        birth_data.pop('full_name', None)  # Remove full_name from birth_data before processing
         chart = chart_class(birth_data)
         d30_data = chart.d30_chart_engine()
         return render_template('d30.html', result=d30_data)
@@ -80,6 +85,7 @@ def d7_chart():
         return redirect(url_for('api.start_chart'))
         
     try:
+        birth_data.pop('full_name', None)  # Remove full_name from birth_data before processing
         chart = chart_class(birth_data)
         d7_data = chart.d7_chart_engine()
         return render_template('d7.html', result=d7_data)
@@ -95,6 +101,7 @@ def d4_chart():
         return redirect(url_for('api.start_chart'))
         
     try:
+        birth_data.pop('full_name', None)  # Remove full_name from birth_data before processing
         chart = chart_class(birth_data)
         d4_data = chart.d4_chart_engine()
         return render_template('d4.html', result=d4_data)

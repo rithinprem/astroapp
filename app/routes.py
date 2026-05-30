@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, render_template, session, redirect, url_for
 from app.calculators.engines import chart_class
-from db import client  # Import the MongoDB client from db.py
+from app.db import load_db  # Import the MongoDB client from db.py
 
 api_bp = Blueprint('api', __name__)
 
@@ -19,19 +19,20 @@ def handle_form_submission():
         "lon": float(request.form.get('lon', 0)),
         "timezone": request.form.get('timezone', 'Asia/Kolkata')
     }
-    
+
     session['birth_data'] = birth_data  # Store the birth data safely in user's session
 
+    birth_data_copy = birth_data.copy()  # Create a copy to avoid modifying the session data
+    client = load_db()
     db = client['astroapp']
     users = db['astroapp_people']
-    id = birth_data['dob']+birth_data['time']
-    birth_data['id'] = id
+    id = birth_data_copy['dob']+birth_data_copy['time']
+    birth_data_copy['id'] = id
     users.create_index([("id", 1)], unique=True)
     try:
-        users.insert_one(birth_data)
+        users.insert_one(birth_data_copy)
     except:
         pass  # Ignore duplicate key errors for simplicity
-    
     
     # Redirect to the clean GET route of this same blueprint
     return redirect(url_for('api.show_d1_chart'))
@@ -47,7 +48,6 @@ def show_d1_chart():
         
     try:
         birth_data.pop('full_name', None)  # Remove full_name from birth_data before processing
-        print(birth_data)  # Debugging: Check the birth_data structure
         chart = chart_class(birth_data)
         d1_data = chart.d1_chart_engine()
         return render_template('d1.html', result=d1_data)
@@ -124,14 +124,11 @@ def d4_chart():
 
 @api_bp.route('/get_saved_people', methods=['GET'])
 def get_saved_people():
-    """Return a hard-coded sample JSON list of saved people.
-
-    This endpoint intentionally returns the full sample list so the frontend
-    can fetch all entries and perform client-side autocomplete/filtering.
-    Persistent storage logic will be added later by the user.
-    """
-    sample = [
-        {"dob": "2000-09-09", "time": "06:17", "lat": 11.7002, "lon": 75.5343, "timezone": "Asia/Kolkata", "id": "2000-09-0906:17", "full_name": "rithin"},
-        {"dob": "1989-06-04", "time": "9:20", "lat": 11.7002, "lon": 75.5343, "timezone": "Asia/Kolkata", "id": "1989-06-049:20", "full_name": "Myeonji"}
-    ]
-    return jsonify(sample)
+    client = load_db()
+    db = client['astroapp']
+    users = db['astroapp_people']
+    data = []
+    for doc in users.find({}):
+        doc.pop('_id')
+        data.append(doc)
+    return jsonify(data)

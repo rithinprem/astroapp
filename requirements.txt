@@ -1,3 +1,5 @@
 flask
 dashaflow
+pymongo
+python-dotenv
 gunicorn

@@ -42,8 +42,7 @@
         }
 
         .wrapper {
-            width: 100%;
-            max-width: 682px;
+            max-width: 100%;
             margin: 0 auto;
             padding: 6px;
         }
@@ -67,6 +66,12 @@
             right: 0;
             height: 5px;
             background: linear-gradient(90deg, var(--primary-gold), var(--dark-gold));
+        }
+
+        .formbox {
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
         }
 
         h2 {
@@ -189,16 +194,7 @@
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
-        select {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 15px;
-            color: var(--text-dark);
-            background-color: #fcfdfa;
-            transition: all 0.18s ease-in-out;
-        }
+
 
         .form-group.small {
             margin-bottom: 10px;
@@ -207,7 +203,6 @@
         .form-group {
             margin-bottom: 22px;
             position: relative;
-            flex: 1;
             min-width: 0;
         }
 
@@ -240,7 +235,6 @@
         }
 
         button {
-            width: 100%;
             padding: 14px;
             background: linear-gradient(135deg, var(--primary-gold) 0%, var(--dark-gold) 100%);
             color: var(--white);
@@ -251,7 +245,9 @@
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(170, 132, 28, 0.2);
             transition: all 0.2s ease;
-            margin-top: 5px;
+            margin-top: 15px;
+            margin-left: 25%;
+            width: 50%;
         }
 
         button:hover {
@@ -265,6 +261,9 @@
 
         /* Modernized Autocomplete Suggestion Dropdown List */
         .autocomplete-suggestions {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
             z-index: 1000;
             background: var(--white);
             border: 1px solid rgba(214, 175, 55, 0.25);
@@ -273,11 +272,10 @@
             max-height: 220px;
             overflow-y: auto;
             width: 100%;
-            left: 0;
-            right: 0;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
             display: none;
             box-sizing: border-box;
+            padding: 6px 0;
         }
 
         /* Enhanced suggestion item styling */
@@ -288,8 +286,7 @@
             padding: 10px 12px;
             cursor: pointer;
             border-bottom: 1px solid #f6f4ee;
-            border-radius: 6px;
-            margin: 6px;
+            margin: 0;
             transition: background 0.12s ease, transform 0.06s ease;
         }
 
@@ -364,6 +361,11 @@
                 max-width: 100%;
             }
 
+            .formbox {
+                flex-direction: column;
+                gap: 20px;
+            }
+
             .form-card {
                 padding: 22px 16px;
                 border-radius: 12px;
@@ -429,20 +431,16 @@
                 border-radius: 8px;
             }
 
-            button {
-                padding: 14px;
-                font-size: 16px;
-                border-radius: 10px;
-            }
+        }
 
-            .result-card {
-                padding: 18px;
-                font-size: 13px;
-                border-radius: 10px;
-                margin-top: 18px;
-                white-space: pre-wrap;
-                overflow-x: auto;
-            }
+        .result-card {
+            padding: 18px;
+            font-size: 13px;
+            border-radius: 10px;
+            margin-top: 18px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
         }
     </style>
 </head>
@@ -513,20 +511,71 @@
                 <circle cx="32" cy="32" r="2.2" fill="#fffef5" opacity="0.9" filter="url(#glowEffect)" />
             </svg>
             <h1 class="site-title">AstroApp</h1>
-            <p class="site-subtitle">Birth Details &amp; Charting</p>
+            <p class="site-subtitle">Compatibility Details &amp; Charting</p>
         </header>
 
-        <div class="form-card">
-            <h2>Enter Birth Details</h2>
-            <form action="/chart" method="POST">
+        <div class="formbox">
+            <div class="form-card">
+                <h2>Enter Male Birth Details</h2>
+                <form action="/compatibility_result" method="POST">
 
+                    <div class="top-grid">
+                        <div class="panel saved-panel">
+                            <div class="panel-title">Saved People</div>
+                            <div class="panel-body">
+                                <input type="text" id="saved-search-male" class="search-input"
+                                    placeholder="Search saved people..." autocomplete="off">
+                                <div id="saved-suggestions-male" class="autocomplete-suggestions"></div>
+                                <div class="panel-hint">Select a saved person to populate the form.</div>
+                            </div>
+                        </div>
+
+                        <div class="panel create-panel">
+                            <div class="panel-title">Register New Person</div>
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <label>Name</label>
+                                    <input type="text" name="fullname_male" id="fullname-male" placeholder="Full name">
+                                </div>
+
+                                <div class="form-row">
+                                <div class="form-group">
+                                        <label>Date of Birth</label>
+                                        <input type="date" name="dob_male" id="dob-male" value="2000-09-09">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Time of Birth</label>
+                                        <input type="time" name="time_male" id="time-male" value="06:17">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Birth Place (City / Town)</label>
+                                    <input type="text" id="city-search-male" class="search-input"
+                                        name="city_male" placeholder="Search birth location..." autocomplete="off">
+                                    <div id="suggestions-box-male" class="autocomplete-suggestions"></div>
+                                </div>
+
+                                <!-- Hidden geolocation fields (calculated from birthplace) -->
+                                <input type="hidden" id="lat-male" name="lat_male" value="">
+                                <input type="hidden" id="lon-male" name="lon_male" value="">
+                                <input type="hidden" id="timezone-male" name="timezone_male" value="">
+
+                                <div class="panel-hint">Fill these fields and click Calculate Charts.</div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+
+            <div class="form-card">
+                <h2>Enter Female Birth Details</h2>
                 <div class="top-grid">
                     <div class="panel saved-panel">
                         <div class="panel-title">Saved People</div>
                         <div class="panel-body">
-                            <input type="text" id="saved-search" class="search-input"
+                            <input type="text" id="saved-search-female" class="search-input"
                                 placeholder="Search saved people..." autocomplete="off">
-                            <div id="saved-suggestions" class="autocomplete-suggestions"></div>
+                            <div id="saved-suggestions-female" class="autocomplete-suggestions"></div>
                             <div class="panel-hint">Select a saved person to populate the form.</div>
                         </div>
                     </div>
@@ -536,90 +585,61 @@
                         <div class="panel-body">
                             <div class="form-group">
                                 <label>Name</label>
-                                <input type="text" name="fullname" id="fullname" placeholder="Full name" required>
+                                <input type="text" name="fullname_female" id="fullname-female" placeholder="Full name">
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>Date of Birth</label>
-                                    <input type="date" name="dob" id="dob" value="2000-09-09" required>
+                                    <input type="date" name="dob_female" id="dob-female" value="2000-09-09">
                                 </div>
                                 <div class="form-group">
                                     <label>Time of Birth</label>
-                                    <input type="time" name="time" id="time" value="06:17" required>
+                                    <input type="time" name="time_female" id="time-female" value="06:17">
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Gender</label>
-                                <select name="gender" id="gender" required>
-                                    <option value="male" selected>Male</option>
-                                    <option value="female">Female</option>
-                                </select>
                             </div>
 
                             <div class="form-group">
                                 <label>Birth Place (City / Town)</label>
-                                <input type="text" id="city-search" name="city-search" class="search-input" value=""
+                                <input type="text" id="city-search-female" name="city_female" class="search-input"
                                     placeholder="Search birth location..." autocomplete="off">
-                                <div id="suggestions-box" class="autocomplete-suggestions"></div>
+                                <div id="suggestions-box-female" class="autocomplete-suggestions"></div>
                             </div>
 
                             <!-- Hidden geolocation fields (calculated from birthplace) -->
-                            <input type="hidden" id="lat" name="lat" value="">
-                            <input type="hidden" id="lon" name="lon" value="">
-                            <input type="hidden" id="timezone" name="timezone" value="">
-
-                            <!-- Hidden field to indicate if a saved person was selected -->
-                            <input type="hidden" id="saved_flag" name="saved_flag" value="false">
+                            <input type="hidden" id="lat-female" name="lat_female" value="">
+                            <input type="hidden" id="lon-female" name="lon_female" value="">
+                            <input type="hidden" id="timezone-female" name="timezone_female" value="">
 
                             <div class="panel-hint">Fill these fields and click Calculate Charts.</div>
                         </div>
                     </div>
                 </div>
-                <button type="submit">Calculate Birth  Chart</button>
 
-            </form>
 
-            <form action="/compatibility" method="GET">
-                <button type="submit">Check compatibility</button>
-            </form>
-
+            </div>
         </div>
+
+        <button type="submit">Check Compatibility</button>
+
+        </form>
+
+
+    </div>
 
     </div>
 
     <script>
-        const savedSearch = document.getElementById('saved-search');
-        const savedSuggestions = document.getElementById('saved-suggestions');
-        const citySearch = document.getElementById('city-search');
-        const suggestionsBox = document.getElementById('suggestions-box');
-        const latInput = document.getElementById('lat');
-        const lonInput = document.getElementById('lon');
-        const tzInput = document.getElementById('timezone');
-        const savedFlagInput = document.getElementById('saved_flag');
-
-
-        // Saved people autocomplete (client-side filtering & sorting)
-        let savedDebounce;
+        /* Utilities: escaping, highlighting, scoring and saved-people loader */
         let savedPeopleCache = null;
 
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/[&<>"'`=\/]/g, function (s) {
-                return ({
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#39;',
-                    '/': '&#x2F;',
-                    '`': '&#96;',
-                    '=': '&#61;'
-                })[s];
+                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#96;', '=': '&#61;' })[s];
             });
         }
 
-        // Highlight first matching substring in `text` with <strong>
         function highlightMatch(text, q) {
             if (!q) return escapeHtml(text);
             const idx = text.toLowerCase().indexOf(q.toLowerCase());
@@ -630,17 +650,14 @@
             return `${before}<strong>${match}</strong>${after}`;
         }
 
-        // Score function: higher score for prefix matches and name-word starts
         function scoreItem(item, q) {
             if (!q) return 0;
             const ql = q.toLowerCase();
             const name = (item.full_name || '').toLowerCase();
             const id = (item.id || '').toLowerCase();
-
             if (name.startsWith(ql)) return 100;
-            // word-start matches (e.g., last name)
             const words = name.split(/\s+/);
-            for (const w of words) { if (w.startsWith(ql)) return 90; }
+            for (const w of words) if (w.startsWith(ql)) return 90;
             if (id.startsWith(ql)) return 85;
             if (name.includes(ql)) return 70;
             if (id.includes(ql)) return 60;
@@ -654,183 +671,150 @@
             return savedPeopleCache;
         }
 
-        // Utility to render suggestion items
-        async function renderSavedSuggestions(query) {
-            savedSuggestions.innerHTML = '<div class="loading-text">Loading saved people...</div>';
-            savedSuggestions.style.display = 'block';
-            try {
-                const all = await ensureSavedPeopleLoaded();
+        /* Initialize controls for one panel (suffix: '-male' or '-female') */
+        function setupSection(suffix) {
+            const savedSearch = document.getElementById(`saved-search${suffix}`);
+            const savedSuggestions = document.getElementById(`saved-suggestions${suffix}`);
+            const citySearch = document.getElementById(`city-search${suffix}`);
+            const suggestionsBox = document.getElementById(`suggestions-box${suffix}`);
+            const latInput = document.getElementById(`lat${suffix}`);
+            const lonInput = document.getElementById(`lon${suffix}`);
+            const tzInput = document.getElementById(`timezone${suffix}`);
+            const fullnameInput = document.getElementById(`fullname${suffix}`);
+            const dobInput = document.getElementById(`dob${suffix}`);
+            const timeInput = document.getElementById(`time${suffix}`);
 
-                let list = [];
-                const q = (query || '').trim();
+            let savedDebounce;
+            let placeDebounce;
 
-                if (!q) {
-                    // show all (or top 12) sorted by name when no query
-                    list = all.slice().sort((a, b) => (a.full_name || '').localeCompare(b.full_name || '')).slice(0, 12);
-                } else {
-                    // Score and filter when query present
-                    const scored = all.map(item => ({ item, score: scoreItem(item, q) }))
-                        .filter(r => r.score > 0)
-                        .sort((a, b) => b.score - a.score || (a.item.full_name || '').localeCompare(b.item.full_name || ''))
-                        .slice(0, 12)
-                        .map(r => r.item);
-                    list = scored;
-                }
+            async function renderSavedSuggestionsLocal(query) {
+                if (!savedSuggestions) return;
+                savedSuggestions.innerHTML = '<div class="loading-text">Loading saved people...</div>';
+                savedSuggestions.style.display = 'block';
+                try {
+                    const all = await ensureSavedPeopleLoaded();
+                    // Restrict suggestions to the section's gender
+                    const desiredGender = (suffix === '-male') ? 'male' : 'female';
+                    const genderFiltered = (all || []).filter(it => ((it.gender || '').toLowerCase() === desiredGender));
+                    let list = [];
+                    const q = (query || '').trim();
+                    if (!q) {
+                        list = genderFiltered.slice().sort((a, b) => (a.full_name || '').localeCompare(b.full_name || '')).slice(0, 12);
+                    } else {
+                        const scored = genderFiltered.map(item => ({ item, score: scoreItem(item, q) }))
+                            .filter(r => r.score > 0)
+                            .sort((a, b) => b.score - a.score || (a.item.full_name || '').localeCompare(b.item.full_name || ''))
+                            .slice(0, 12)
+                            .map(r => r.item);
+                        list = scored;
+                    }
 
-                savedSuggestions.innerHTML = '';
-                if (!list || list.length === 0) {
-                    savedSuggestions.innerHTML = '<div class="loading-text">No saved people found</div>';
-                    return;
-                }
+                    savedSuggestions.innerHTML = '';
+                    if (!list || list.length === 0) {
+                        savedSuggestions.innerHTML = '<div class="loading-text">No saved people found</div>';
+                        return;
+                    }
 
-                list.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'suggestion-item';
-                    div.setAttribute('tabindex', '0');
-                    const nameHtml = highlightMatch(item.full_name || '', query || '');
-                    const meta = escapeHtml(`${item.dob || ''} ${item.time || ''}`);
-                    div.innerHTML = `<div class="suggestion-main">${nameHtml}<div class="meta">${meta}</div></div>`;
+                    list.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        const nameHtml = highlightMatch(item.full_name || '', query || '');
+                        const meta = escapeHtml(`${item.dob || ''} ${item.time || ''}`);
+                        div.innerHTML = `<div class="suggestion-main">${nameHtml}<div class="meta">${meta}</div></div>`;
 
-                    // Populate fields on selection but DO NOT auto-submit the form.
-                    div.addEventListener('click', () => {
-                        if (savedFlagInput) savedFlagInput.value = 'true';
-                        const fullnameInput = document.getElementById('fullname');
-                        const dobInput = document.querySelector('input[name="dob"]');
-                        const timeInput = document.querySelector('input[name="time"]');
-                        if (fullnameInput) fullnameInput.value = item.full_name || '';
+                        div.addEventListener('click', () => {
+                            if (fullnameInput) fullnameInput.value = item.full_name || '';
                             if (dobInput) dobInput.value = item.dob || '';
                             if (timeInput) timeInput.value = item.time || '';
                             if (citySearch) citySearch.value = item.city || item.place || '';
-                            latInput.value = item.lat || '';
-                            lonInput.value = item.lon || '';
-                            tzInput.value = item.timezone || 'Asia/Kolkata';
-                            
-                            const genderSelect = document.getElementById('gender');
-                            if (genderSelect && item.gender) {
-                                try { genderSelect.value = item.gender.toLowerCase(); } catch (e) { }
-                            }
+                            if (latInput) latInput.value = item.lat || '';
+                            if (lonInput) lonInput.value = item.lon || '';
+                            if (tzInput) tzInput.value = item.timezone || 'Asia/Kolkata';
 
-                        savedSuggestions.style.display = 'none';
+                            // Populate inputs from the selected saved person; wait for user to submit.
+                            if (savedSuggestions) savedSuggestions.style.display = 'none';
+                        });
+
+                        savedSuggestions.appendChild(div);
                     });
+                } catch (err) {
+                    console.error('Fetching saved people failed', err);
+                    if (savedSuggestions) savedSuggestions.style.display = 'none';
+                }
+            }
 
-                    savedSuggestions.appendChild(div);
+            if (savedSearch) {
+                savedSearch.addEventListener('input', function () {
+                    clearTimeout(savedDebounce);
+                    const query = this.value.trim();
+                    savedDebounce = setTimeout(() => renderSavedSuggestionsLocal(query), 150);
                 });
-            } catch (err) {
-                console.error('Fetching saved people failed', err);
-                savedSuggestions.style.display = 'none';
+                savedSearch.addEventListener('focus', function () { renderSavedSuggestionsLocal(this.value.trim()); });
+                savedSearch.addEventListener('keydown', function (e) {
+                    if ((e.key === 'ArrowDown' || e.key === 'Down') && savedSuggestions && savedSuggestions.children.length > 0) {
+                        const first = savedSuggestions.querySelector('.suggestion-item');
+                        if (first) first.focus();
+                    }
+                });
+            }
+
+            if (citySearch) {
+                citySearch.addEventListener('input', function () {
+                    clearTimeout(placeDebounce);
+                    const query = this.value.trim();
+                    if (query.length < 3) { if (suggestionsBox) suggestionsBox.style.display = 'none'; return; }
+                    placeDebounce = setTimeout(() => {
+                        suggestionsBox.innerHTML = '<div class="loading-text">Searching locations...</div>';
+                        suggestionsBox.style.display = 'block';
+                        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`)
+                            .then(res => res.json())
+                            .then(data => {
+                                suggestionsBox.innerHTML = '';
+                                if (!data || data.length === 0) { suggestionsBox.innerHTML = '<div class="loading-text">No locations found</div>'; return; }
+                                data.forEach(item => {
+                                    const div = document.createElement('div');
+                                    div.className = 'suggestion-item';
+                                    div.textContent = item.display_name;
+                                    div.addEventListener('click', () => {
+                                        citySearch.value = item.display_name;
+                                        if (latInput) latInput.value = item.lat;
+                                        if (lonInput) lonInput.value = item.lon;
+                                        suggestionsBox.style.display = 'none';
+                                        // fetch timezone for the coordinates
+                                        fetchTimezoneForSection(item.lat, item.lon, tzInput);
+                                    });
+                                    suggestionsBox.appendChild(div);
+                                });
+                            })
+                            .catch(err => { console.error('Geocoding failed', err); if (suggestionsBox) suggestionsBox.style.display = 'none'; });
+                    }, 400);
+                });
             }
         }
 
-        if (savedSearch) {
-            savedSearch.addEventListener('input', function () {
-                clearTimeout(savedDebounce);
-                const query = this.value.trim();
-                // Slightly larger debounce to reduce client scoring work
-                savedDebounce = setTimeout(() => renderSavedSuggestions(query), 250);
-            });
-
-            // On focus show all saved people (or filtered by current text)
-            savedSearch.addEventListener('focus', function () {
-                const query = this.value.trim();
-                renderSavedSuggestions(query);
-            });
-
-            // Also allow pressing ArrowDown to focus suggestions
-            savedSearch.addEventListener('keydown', function (e) {
-                if ((e.key === 'ArrowDown' || e.key === 'Down') && savedSuggestions.children.length > 0) {
-                    const first = savedSuggestions.querySelector('.suggestion-item');
-                    if (first) first.focus();
-                }
-            });
-        }
-
-        // Place autocomplete (Nominatim)
-        let debounceTimer;
-        if (citySearch) {
-            citySearch.addEventListener('input', function () {
-                clearTimeout(debounceTimer);
-                const query = this.value.trim();
-
-                if (query.length < 3) {
-                    suggestionsBox.style.display = 'none';
-                    return;
-                }
-
-                debounceTimer = setTimeout(() => {
-                    suggestionsBox.innerHTML = '<div class="loading-text">Searching locations...</div>';
-                    suggestionsBox.style.display = 'block';
-
-                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`)
-                        .then(res => res.json())
-                        .then(data => {
-                            suggestionsBox.innerHTML = '';
-                            if (data.length === 0) {
-                                suggestionsBox.innerHTML = '<div class="loading-text">No locations found</div>';
-                                return;
-                            }
-
-                            data.forEach(item => {
-                                const div = document.createElement('div');
-                                div.className = 'suggestion-item';
-                                div.setAttribute('tabindex', '0');
-                                div.textContent = item.display_name;
-
-                                div.addEventListener('click', () => {
-                                    citySearch.value = item.display_name;
-                                    console.log(citySearch.value);
-
-                                    latInput.value = item.lat;
-                                    lonInput.value = item.lon;
-                                    suggestionsBox.style.display = 'none';
-
-                                    // fetch timezone for the coordinates
-                                    fetchTimezone(item.lat, item.lon);
-                                });
-                                suggestionsBox.appendChild(div);
-                            });
-
-                            // keyboard Enter to select suggestion
-                            suggestionsBox.addEventListener('keydown', function (e) {
-                                const target = e.target.closest && e.target.closest('.suggestion-item');
-                                if (!target) return;
-                                if (e.key === 'Enter') target.click();
-                            });
-                        })
-                        .catch(err => {
-                            console.error("Geocoding failed", err);
-                            suggestionsBox.style.display = 'none';
-                        });
-                }, 400);
-            });
-        }
-
-        function fetchTimezone(lat, lon) {
+        function fetchTimezoneForSection(lat, lon, tzInput) {
+            if (!tzInput) return;
             fetch(`https://timeapi.io/api/timezone/coordinate?latitude=${lat}&longitude=${lon}`)
                 .then(res => res.json())
-                .then(data => {
-                    if (data && data.timeZone) {
-                        tzInput.value = data.timeZone;
-                        console.log(`Autoassigned values: Lat ${lat}, Lon ${lon}, TZ ${data.timeZone}`);
-                    }
-                })
-                .catch(err => {
-                    console.warn("Timezone fallback applied: Defaulting to Asia/Kolkata", err);
-                    tzInput.value = "Asia/Kolkata";
-                });
+                .then(data => { if (data && data.timeZone) { tzInput.value = data.timeZone; console.log(`Autoassigned values: Lat ${lat}, Lon ${lon}, TZ ${data.timeZone}`); } })
+                .catch(err => { console.warn('Timezone fallback applied: Defaulting to Asia/Kolkata', err); tzInput.value = 'Asia/Kolkata'; });
         }
 
+        // Initialize both sections
+        ['-male', '-female'].forEach(sfx => setupSection(sfx));
+
+        /* Hide suggestion lists when clicking outside their panels */
         document.addEventListener('click', function (e) {
-            if (savedSearch) {
-                if (!savedSuggestions.contains(e.target) && e.target !== savedSearch) {
-                    savedSuggestions.style.display = 'none';
-                }
-            }
-            if (citySearch) {
-                if (!suggestionsBox.contains(e.target) && e.target !== citySearch) {
-                    suggestionsBox.style.display = 'none';
-                }
-            }
+            ['-male', '-female'].forEach(sfx => {
+                const savedSearch = document.getElementById(`saved-search${sfx}`);
+                const savedSuggestions = document.getElementById(`saved-suggestions${sfx}`);
+                const citySearch = document.getElementById(`city-search${sfx}`);
+                const suggestionsBox = document.getElementById(`suggestions-box${sfx}`);
+                if (savedSearch && savedSuggestions && e.target !== savedSearch && !savedSuggestions.contains(e.target)) savedSuggestions.style.display = 'none';
+                if (citySearch && suggestionsBox && e.target !== citySearch && !suggestionsBox.contains(e.target)) suggestionsBox.style.display = 'none';
+            });
         });
+
     </script>
 </body>
 

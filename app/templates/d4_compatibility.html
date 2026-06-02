@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstroApp - Compatibility D4 Charts</title>
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --chart-line: #f59e0b;
+
+            /* Planet Colors */
+            --color-Jupiter: #f59e0b;
+            --color-Saturn: #1e3a8a;
+            --color-Mars: #dc2626;
+            --color-Sun: #ef4444;
+            --color-Mercury: #22c55e;
+            --color-Venus: #d946ef;
+            --color-Moon: #6366f1;
+            --color-Ketu: #f97316;
+            --color-Rahu: #ec4899;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            margin: 0;
+            padding: 30px 15px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 16px;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow:
+                0 4px 6px -1px rgba(15, 23, 42, 0.02),
+                0 10px 15px -3px rgba(15, 23, 42, 0.04);
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            white-space: nowrap;
+        }
+
+        .nav-actions::-webkit-scrollbar { display: none; }
+        .nav-actions { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+            text-decoration: none;
+            border-radius: 10px;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform, box-shadow;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+        .btn:active { transform: translateY(1px); }
+
+        .btn-back { color: #4f46e5; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05); }
+        .btn-back:hover { color: #4338ca; background: #f8fafc; border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08); }
+
+        .btn-varga { color: #ffffff; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: 1px solid #b45309; box-shadow: 0 1px 2px rgba(217, 119, 6, 0.15); }
+        .btn-varga:hover { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35); }
+        .btn svg { transition: transform 0.2s ease; }
+        .btn-back:hover svg { transform: translateX(-2px); }
+        .btn-varga:hover svg { transform: translateX(2px); }
+        .btn-varga.active { background: linear-gradient(135deg, #b45309 0%, #92400e 100%); border-color: #78350f; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.5), inset 0 0 12px rgba(0,0,0,0.2); font-weight:700; }
+
+        .chart-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .chart-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .kundli-title {
+            font-size: clamp(1.25rem, 2.2vw, 2rem);
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: 0.02em;
+            margin: 0;
+        }
+
+        .kundli-subtitle {
+            font-size: 0.95rem;
+            color: #6b7280;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .kundli-box {
+            position: relative;
+            width: 100%;
+            max-width: 550px;
+            aspect-ratio: 1 / 1;
+            background: #ffffff;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            border: 1px solid var(--chart-line);
+            margin-bottom: 18px;
+        }
+
+        .kundli-box::before {
+            content: "D4";
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.4rem, 2.4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            color: rgba(15, 23, 42, 0.12);
+            transform: rotate(0deg);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .grid-svg,
+        .house-square {
+            position: absolute;
+            z-index: 1;
+        }
+
+        .grid-svg {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .house-square {
+            position: absolute;
+            width: 24%;
+            height: 24%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .rashi-num {
+            font-size: 19px;
+            font-weight: 700;
+            color: #64748b;
+            line-height: 1;
+            margin-bottom: 3px;
+        }
+
+        .planets {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .p-text {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.1;
+            white-space: nowrap;
+        }
+
+        .indicator {
+            font-size: 0.85em;
+            vertical-align: super;
+            font-weight: bold;
+        }
+
+        .combust-symbol {
+            color: #dc2626;
+        }
+
+        .Jupiter { color: var(--color-Jupiter); }
+        .Saturn { color: var(--color-Saturn); }
+        .Mars { color: var(--color-Mars); }
+        .Sun { color: var(--color-Sun); }
+        .Mercury { color: var(--color-Mercury); }
+        .Venus { color: var(--color-Venus); }
+        .Moon { color: var(--color-Moon); }
+        .Ketu { color: var(--color-Ketu); }
+        .Rahu { color: var(--color-Rahu); }
+
+        .copy-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border: 1px solid #b45309;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);
+        }
+
+        .copy-button:hover { transform: translateY(-1px); }
+
+        @media (max-width: 600px) {
+            .kundli-box { max-width: 320px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="nav-actions" id="nav-actions">
+            <a href="/" class="btn btn-back">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Calculate New Chart
+            </a>
+            <a href="/compatibility_result" class="btn btn-varga" data-chart="d1">Lagna (D1) Chart
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </a>
+            <a href="/d9_compatibility_result" class="btn btn-varga" data-chart="d9">Navamsha (D9) Chart
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </a>
+            <a href="/d30_compatibility_result" class="btn btn-varga" data-chart="d30">Trishamsha (D30) Chart
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </a>
+            <a href="/d7_compatibility_result" class="btn btn-varga" data-chart="d7">Saptamsha (D7) Chart
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </a>
+            <a href="/d4_compatibility_result" class="btn btn-varga" data-chart="d4">Chaturthamsa (D4) Chart
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </a>
+        </div>
+        <div class="chart-header">
+            <h1 class="kundli-title">Compatibility — D4 Charts</h1>
+        </div>
+
+        {# Helper: render one D4 kundli for a given dataset and prefix #}
+        {% macro render_kundli(data, label) %}
+            {% set house_planets = {1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[],11:[],12:[]} %}
+            {% for p_name, p_info in data.items() %}
+                {% set is_retro = p_info.get('Retrograde', False) or p_info.get('Retro', False) %}
+                {% set is_combust = p_info.get('Combustion', False) or p_info.get('Combust', False) %}
+                {% set _ = house_planets[p_info.get('House', 1)].append({ 'name': p_name, 'degree': p_info.get('Degree',''), 'retro': is_retro, 'combust': is_combust }) %}
+            {% endfor %}
+
+            {% set ns = namespace(lagna=1) %}
+            {% set rashi_map = {"Aries":1,"Taurus":2,"Gemini":3,"Cancer":4,"Leo":5,"Virgo":6,"Libra":7,"Scorpio":8,"Sagittarius":9,"Capricorn":10,"Aquarius":11,"Pisces":12} %}
+            {% for p, d in data.items() %}
+                {% if loop.first %}
+                    {% set p_sign = rashi_map.get(d.get('Sign', 'Aries'), 1) %}
+                    {% set diff = p_sign - d.get('House', 1) + 1 %}
+                    {% set ns.lagna = diff if diff > 0 else diff + 12 %}
+                {% endif %}
+            {% endfor %}
+
+            {% set boxes = {1: {'left': 38, 'top': 13}, 2: {'left': 13, 'top': 0.5}, 3: {'left': 0.5, 'top': 13}, 4: {'left': 13, 'top': 38}, 5: {'left': 0.5, 'top': 63}, 6: {'left': 13, 'top': 75.5}, 7: {'left': 38, 'top': 63}, 8: {'left': 63, 'top': 75.5}, 9: {'left': 75.5, 'top': 63}, 10: {'left': 63, 'top': 38}, 11: {'left': 75.5, 'top': 13}, 12: {'left': 63, 'top': 0.5} } %}
+
+            <div class="chart-section">
+                <div class="chart-header" style="margin-bottom:6px;">
+                    <h2 class="kundli-title">{{ label }}</h2>
+                </div>
+                <div class="chart-wrapper">
+                    <div class="kundli-box">
+                        <svg class="grid-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <line x1="0" y1="0" x2="100" y2="100" stroke="var(--chart-line)" stroke-width="0.3" />
+                            <line x1="100" y1="0" x2="0" y2="100" stroke="var(--chart-line)" stroke-width="0.3" />
+                            <polygon points="50,0 100,50 50,100 0,50" fill="none" stroke="var(--chart-line)" stroke-width="0.3" />
+                        </svg>
+
+                        {% for h in range(1,13) %}
+                            {% set rashi_num = (ns.lagna + h - 2) % 12 + 1 %}
+                            <div class="house-square" style="left: {{ boxes[h].left }}%; top: {{ boxes[h].top }}%;">
+                                <div class="rashi-num">{{ rashi_num }}</div>
+                                <div class="planets">
+                                    {% for p in house_planets[h] %}
+                                        <span class="p-text {{ p.name }}">{{ p.name[:2] }} {% if p.retro %}<span class="indicator retro-symbol">®</span>{% endif %} {% if p.combust %}<span class="indicator combust-symbol">c</span>{% endif %} {{ p.degree }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endmacro %}
+
+        {# Render male on top, female below #}
+        <div style="align-items:center;gap:18px;">
+            {{ render_kundli(male, 'Male Kundli') }}
+            {{ render_kundli(female, 'Female Kundli') }}
+        </div>
+
+        <!-- Copy Combined Chart Data Button -->
+        <div style="display: flex; justify-content: center; margin-top: 24px; margin-bottom: 20px;">
+            <button id="copyBtn" class="copy-button" title="Copy both charts data to clipboard">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                </svg>
+                Copy Charts Data
+            </button>
+        </div>
+
+        <script>
+            document.getElementById('copyBtn').addEventListener('click', () => {
+                const combined = { male: {{ male | tojson }}, female: {{ female | tojson }} };
+                const jsonString = JSON.stringify(combined, null, 2);
+                navigator.clipboard.writeText(jsonString).then(() => {
+                    const btn = document.getElementById('copyBtn');
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Copied!';
+                    btn.style.backgroundColor = '#22c55e';
+                    btn.style.borderColor = '#16a34a';
+                    setTimeout(() => { btn.innerHTML = originalText; btn.style.backgroundColor = ''; btn.style.borderColor = ''; }, 2000);
+                }).catch(err => { alert('Failed to copy: ' + err.message); });
+            });
+        </script>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const navActions = document.getElementById('nav-actions');
+                const currentChart = 'd4';
+                const activeBtn = navActions ? navActions.querySelector(`[data-chart="${currentChart}"]`) : null;
+                if (activeBtn) {
+                    activeBtn.classList.add('active');
+                    navActions.scrollLeft = activeBtn.offsetLeft - 60;
+                }
+            });
+        </script>
+
+    </div>
+</body>
+
+</html>

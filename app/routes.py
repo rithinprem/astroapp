@@ -173,6 +173,19 @@ def compatibility_result():
 
     session['compatibility_data'] = compatibility_data  # Store the compatibility data safely in user's session
 
+        # Redirect to the clean GET route of this same blueprint    
+    return redirect(url_for('api.compatibility_result_get'))
+
+@api_bp.route('/compatibility_result', methods=['GET'])
+def compatibility_result_get():
+    compatibility_data = session.get('compatibility_data')
+    # Safety Check: Redirect to form index if session doesn't exist
+    if not compatibility_data:
+        return redirect(url_for('api.start_chart'))
+    
+    male_data = compatibility_data.get('male')          
+    female_data = compatibility_data.get('female')
+
     try:
         male_data_copy = male_data.copy()  # Create a copy to avoid modifying the session data
         female_data_copy = female_data.copy()
@@ -192,6 +205,7 @@ def compatibility_result():
         return render_template('d1_compatibility.html', male=d1_data_male, female=d1_data_female)
     except Exception as e:
         return f"Calculation failed: {str(e)}", 500
+
 
 @api_bp.route('/d9_compatibility_result', methods=['GET'])
 def d9_compatibility_result():

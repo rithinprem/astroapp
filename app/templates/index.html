@@ -698,17 +698,27 @@
                         const dobInput = document.querySelector('input[name="dob"]');
                         const timeInput = document.querySelector('input[name="time"]');
                         if (fullnameInput) fullnameInput.value = item.full_name || '';
-                            if (dobInput) dobInput.value = item.dob || '';
-                            if (timeInput) timeInput.value = item.time || '';
-                            if (citySearch) citySearch.value = item.city || item.place || '';
-                            latInput.value = item.lat || '';
-                            lonInput.value = item.lon || '';
-                            tzInput.value = item.timezone || 'Asia/Kolkata';
-                            
-                            const genderSelect = document.getElementById('gender');
-                            if (genderSelect && item.gender) {
-                                try { genderSelect.value = item.gender.toLowerCase(); } catch (e) { }
-                            }
+                        if (dobInput) dobInput.value = item.dob || '';
+                        if (timeInput) timeInput.value = item.time || '';
+                        if (citySearch) citySearch.value = item.city || item.place || '';
+                        latInput.value = item.lat || '';
+                        lonInput.value = item.lon || '';
+
+                        // If saved doc has timezone use it; otherwise try to fetch by coords
+                        if (item.timezone) {
+                            tzInput.value = item.timezone;
+                        } else if (item.lat && item.lon) {
+                            fetchTimezone(item.lat, item.lon).then(tz => {
+                                // tzInput is set inside fetchTimezone
+                            });
+                        } else {
+                            tzInput.value = 'Asia/Kolkata';
+                        }
+
+                        const genderSelect = document.getElementById('gender');
+                        if (genderSelect && item.gender) {
+                            try { genderSelect.value = item.gender.toLowerCase(); } catch (e) { }
+                        }
 
                         savedSuggestions.style.display = 'none';
                     });
@@ -805,17 +815,21 @@
         }
 
         function fetchTimezone(lat, lon) {
-            fetch(`https://timeapi.io/api/timezone/coordinate?latitude=${lat}&longitude=${lon}`)
-                .then(res => res.json())
+            return fetch(`https://timeapi.io/api/timezone/coordinate?latitude=${lat}&longitude=${lon}`)
+                .then(res => {
+                    if (!res.ok) throw new Error('timezone fetch failed');
+                    return res.json();
+                })
                 .then(data => {
-                    if (data && data.timeZone) {
-                        tzInput.value = data.timeZone;
-                        console.log(`Autoassigned values: Lat ${lat}, Lon ${lon}, TZ ${data.timeZone}`);
-                    }
+                    const tz = (data && data.timeZone) ? data.timeZone : 'Asia/Kolkata';
+                    if (tzInput) tzInput.value = tz;
+                    console.log(`Autoassigned values: Lat ${lat}, Lon ${lon}, TZ ${tz}`);
+                    return tz;
                 })
                 .catch(err => {
                     console.warn("Timezone fallback applied: Defaulting to Asia/Kolkata", err);
-                    tzInput.value = "Asia/Kolkata";
+                    if (tzInput) tzInput.value = 'Asia/Kolkata';
+                    return 'Asia/Kolkata';
                 });
         }
 
@@ -832,15 +846,26 @@
             }
         });
 
-        // Sanitize timezone input before submitting the chart form
+        // Sanitize timezone input before submitting the chart form and fetch if missing
         const chartForm = document.querySelector('form[action="/chart"]');
         if (chartForm) {
-            chartForm.addEventListener('submit', function (e) {
+            chartForm.addEventListener('submit', async function (e) {
                 if (tzInput) {
                     let tz = (tzInput.value || '').trim();
                     // convert backslashes to forward slashes and remove leading slashes
                     tz = tz.replace(/\\/g, '/');
                     tz = tz.replace(/^\/+/, '');
+                    // If timezone is empty but coordinates exist, fetch timezone first
+                    if (!tz && latInput.value && lonInput.value) {
+                        e.preventDefault();
+                        await fetchTimezone(latInput.value, lonInput.value);
+                        // sanitize again after fetch
+                        tz = (tzInput.value || '').trim();
+                        tz = tz.replace(/\\/g, '/').replace(/^\/+/, '');
+                        tzInput.value = tz || 'Asia/Kolkata';
+                        chartForm.submit();
+                        return;
+                    }
                     tzInput.value = tz || 'Asia/Kolkata';
                 }
             });

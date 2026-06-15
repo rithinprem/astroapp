@@ -831,6 +831,20 @@
                 }
             }
         });
+
+        // Sanitize timezone input before submitting the chart form
+        const chartForm = document.querySelector('form[action="/chart"]');
+        if (chartForm) {
+            chartForm.addEventListener('submit', function (e) {
+                if (tzInput) {
+                    let tz = (tzInput.value || '').trim();
+                    // convert backslashes to forward slashes and remove leading slashes
+                    tz = tz.replace(/\\/g, '/');
+                    tz = tz.replace(/^\/+/, '');
+                    tzInput.value = tz || 'Asia/Kolkata';
+                }
+            });
+        }
     </script>
 </body>
 

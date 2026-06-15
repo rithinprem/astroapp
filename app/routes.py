@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, render_template, session, redirect, url_for
 from app.calculators.engines import chart_class
 from app.db import load_db  # Import the MongoDB client from db.py
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 api_bp = Blueprint('api', __name__)
 
@@ -55,6 +56,13 @@ def show_d1_chart():
         return redirect(url_for('api.start_chart'))
         
     try:
+        # Validate timezone is a known IANA timezone on the server
+        tz = birth_data.get('timezone')
+        try:
+            ZoneInfo(tz)
+        except ZoneInfoNotFoundError:
+            return ("Calculation failed: unknown timezone. Ensure IANA timezone (e.g. Asia/Kolkata) and install tzdata on the server."), 500
+
         birth_data.pop('full_name', None)  # Remove full_name from birth_data before processing
         chart = chart_class(birth_data)
         d1_data = chart.d1_chart_engine()

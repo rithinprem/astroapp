@@ -3,3 +3,4 @@ dashaflow
 pymongo
 python-dotenv
 gunicorn
+tzdata

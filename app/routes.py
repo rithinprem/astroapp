@@ -3,6 +3,8 @@ from app.calculators.engines import chart_class
 from app.db import load_db  # Import the MongoDB client from db.py
 
 api_bp = Blueprint('api', __name__)
+client = load_db()
+
 
 @api_bp.route('/', methods=['GET'])
 def start_chart():
@@ -29,7 +31,6 @@ def handle_form_submission():
     birth_data_copy = birth_data.copy()  # Create a copy to avoid modifying the session data
 
     if not saved_flag:
-        client = load_db()
         db = client['astroapp']
         users = db['astroapp_people']
         id = birth_data_copy['dob']+birth_data_copy['time']
@@ -132,7 +133,6 @@ def d4_chart():
 
 @api_bp.route('/get_saved_people', methods=['GET'])
 def get_saved_people():
-    client = load_db()
     db = client['astroapp']
     users = db['astroapp_people']
     data = []
